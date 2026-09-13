@@ -7,42 +7,68 @@ function Signin() {
   const [email, setEmail] = useState("");
   const [studentId, setStudentId] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError("");
+    setLoading(true);
 
-    // Get the profile created during Sign Up
-    const studentData = localStorage.getItem("student");
-
-    if (!studentData) {
-      setError(
-        "No student profile found. Please create a profile first."
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/students/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            studentId,
+          }),
+        }
       );
-      return;
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(
+          data.message ||
+          "Incorrect email or college ID."
+        );
+
+        setLoading(false);
+        return;
+      }
+
+      // Save the complete student returned by backend
+      localStorage.setItem(
+        "student",
+        JSON.stringify(data.student)
+      );
+
+      // Mark user as signed in
+      localStorage.setItem(
+        "isLoggedIn",
+        "true"
+      );
+
+      // Tell Header to update
+      window.dispatchEvent(
+        new Event("authChange")
+      );
+
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+
+      setError(
+        "Unable to connect to the server. Make sure the backend is running."
+      );
     }
 
-    const student = JSON.parse(studentData);
-
-    // Check login details
-    if (
-      email.trim().toLowerCase() !==
-        student.email.trim().toLowerCase() ||
-      studentId.trim().toLowerCase() !==
-        student.studentId.trim().toLowerCase()
-    ) {
-      setError(
-        "Incorrect email or student ID. Please try again."
-      );
-      return;
-    }
-
-    // Student successfully signed in
-    localStorage.setItem("isLoggedIn", "true");
-
-    // Go to profile
-    navigate("/profile");
+    setLoading(false);
   };
 
   return (
@@ -70,8 +96,6 @@ function Signin() {
           className="signin-form"
         >
 
-          {/* EMAIL */}
-
           <div className="form-group">
 
             <label>Email</label>
@@ -79,14 +103,15 @@ function Signin() {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
               placeholder="Enter your registered email"
               required
             />
 
           </div>
 
-          {/* STUDENT ID */}
 
           <div className="form-group">
 
@@ -98,13 +123,12 @@ function Signin() {
               onChange={(e) =>
                 setStudentId(e.target.value)
               }
-              placeholder="Enter your student ID"
+              placeholder="Enter your college ID"
               required
             />
 
           </div>
 
-          {/* ERROR */}
 
           {error && (
             <p className="signin-error">
@@ -112,13 +136,15 @@ function Signin() {
             </p>
           )}
 
-          {/* SUBMIT */}
 
           <button
             type="submit"
             className="signin-button"
+            disabled={loading}
           >
-            Sign In →
+            {loading
+              ? "Signing In..."
+              : "Sign In →"}
           </button>
 
         </form>

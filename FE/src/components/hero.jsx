@@ -24,7 +24,7 @@ function Hero() {
 
       <div className="hero-poster">
         <img
-          src="/hero-poster.jpeg"
+          src="/hero-poster.jpg"
           alt="Xactitude college events"
         />
       </div>

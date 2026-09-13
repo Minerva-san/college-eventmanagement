@@ -2,7 +2,16 @@ import mongoose from "mongoose";
 
 const studentSchema = new mongoose.Schema(
   {
+    // College ID / Roll Number
     studentId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+
+    // XACTITUDE-generated ID
+    x_Id: {
       type: String,
       required: true,
       unique: true,
@@ -19,6 +28,7 @@ const studentSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+      trim: true,
     },
 
     phone: {
@@ -35,20 +45,8 @@ const studentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    section: {
-      type: String,
-      required: true,
-    },
-
-    password: {
-      type: String,
-      required: true,
-    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true}
 );
 
 const Student = mongoose.model("Student", studentSchema);

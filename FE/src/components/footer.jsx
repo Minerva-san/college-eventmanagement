@@ -11,8 +11,8 @@ const Footer = () => {
         </h4>
 
         <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.95rem' }}>
-          <a href="mailto:computeracademy@kristujayanti.com" style={{ color: '#1d4ed8', textDecoration: 'none' }}>
-            computeracademy@kristujayanti.com
+          <a href="mailto:computeracademy@alphauniversity.com" style={{ color: '#1d4ed8', textDecoration: 'none' }}>
+            computeracademy@alphauniversity.com
           </a>
           <span style={{ color: '#6b7280' }}>|</span>
           <a

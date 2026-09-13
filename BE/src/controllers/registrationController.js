@@ -4,14 +4,9 @@ import Event from "../models/Event.js";
 
 export const registerForEvent = async (req, res) => {
   try {
-    const {
-      studentId,
-      eventId,
-      registrationType
-    } = req.body;
+    const { x_id, eventId, registrationType } = req.body;
 
-    // Check student
-    const student = await Student.findOne({ studentId });
+    const student = await Student.findOne({ x_id });
 
     if (!student) {
       return res.status(404).json({
@@ -48,7 +43,7 @@ export const registerForEvent = async (req, res) => {
     // Check duplicate registration
     const existingRegistration =
       await Registration.findOne({
-        studentId,
+        x_id,
         eventId
       });
 
@@ -60,7 +55,7 @@ export const registerForEvent = async (req, res) => {
 
     // Create registration
     const registration = await Registration.create({
-      studentId,
+      x_id,
       eventId,
       registrationType
     });
@@ -78,6 +73,20 @@ export const registerForEvent = async (req, res) => {
     res.status(500).json({
       message: "Event registration failed",
       error: error.message
+    });
+  }
+};
+export const getStudentRegistrations = async (req, res) => {
+  try {
+    const registrations = await Registration.find({
+      x_id: req.params.x_id,
+    });
+
+    res.status(200).json(registrations);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch registrations",
+      error: error.message,
     });
   }
 };

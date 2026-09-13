@@ -260,7 +260,19 @@ input {
     transform: translateX(-50%);
   }
 }
+.signup-page {
+  min-height: 100vh;
+  padding: 5rem 1.5rem;
+}
 
+.signup-container {
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+}
+.signup-form {
+  margin-top: 2.5rem;
+}
 
 /* =========================================================
    HERO

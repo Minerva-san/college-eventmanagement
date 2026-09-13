@@ -13,6 +13,9 @@ function Signup() {
     year: "",
   });
 
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -20,26 +23,54 @@ function Signup() {
     });
   };
 
-  const generateStudentId = () => {
-    const random = Math.random()
-      .toString(36)
-      .substring(2, 8)
-      .toUpperCase();
-
-    return `XACT-26-${random}`;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const student = {
-      ...formData,
-      xactitudeId: generateStudentId(),
-    };
+    setError("");
+    setLoading(true);
 
-    localStorage.setItem("student", JSON.stringify(student));
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/students/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
-    navigate("/profile");
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Failed to create profile.");
+        setLoading(false);
+        return;
+      }
+
+      // Store the student returned by the backend
+      localStorage.setItem(
+        "student",
+        JSON.stringify(data.student)
+      );
+
+      // User has a profile, but has not signed in yet
+      localStorage.setItem("isLoggedIn", "false");
+
+      // Tell Header that profile has changed
+      window.dispatchEvent(new Event("authChange"));
+
+      navigate("/signin");
+    } catch (error) {
+      console.error(error);
+
+      setError(
+        "Unable to connect to the server. Make sure the backend is running."
+      );
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -47,17 +78,27 @@ function Signup() {
       <div className="signup-container">
 
         <div className="signup-heading">
-          <p className="section-label">XACTITUDE 2026</p>
+          <p className="section-label">
+            XACTITUDE 2026
+          </p>
+
           <h1>Create Profile</h1>
+
           <p>
             Create your student profile to participate in events.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="signup-form">
+        <form
+          onSubmit={handleSubmit}
+          className="signup-form"
+        >
+
+          {/* NAME */}
 
           <div className="form-group">
             <label>Full Name</label>
+
             <input
               type="text"
               name="name"
@@ -68,10 +109,14 @@ function Signup() {
             />
           </div>
 
+
+          {/* EMAIL + PHONE */}
+
           <div className="form-row">
 
             <div className="form-group">
               <label>Email</label>
+
               <input
                 type="email"
                 name="email"
@@ -84,6 +129,7 @@ function Signup() {
 
             <div className="form-group">
               <label>Phone Number</label>
+
               <input
                 type="tel"
                 name="phone"
@@ -96,8 +142,12 @@ function Signup() {
 
           </div>
 
+
+          {/* COLLEGE ID */}
+
           <div className="form-group">
             <label>College / Student ID</label>
+
             <input
               type="text"
               name="studentId"
@@ -107,6 +157,9 @@ function Signup() {
               required
             />
           </div>
+
+
+          {/* COURSE + YEAR */}
 
           <div className="form-row">
 
@@ -119,19 +172,36 @@ function Signup() {
                 onChange={handleChange}
                 required
               >
-                <option value="">Select course</option>
-                <option value="BCA">BCA</option>
+                <option value="">
+                  Select course
+                </option>
+
+                <option value="BCA">
+                  BCA
+                </option>
+
                 <option value="BSc Computer Science">
                   BSc Computer Science
                 </option>
-                <option value="BTech">BTech</option>
-                <option value="MCA">MCA</option>
+
+                <option value="BTech">
+                  BTech
+                </option>
+
+                <option value="MCA">
+                  MCA
+                </option>
+
                 <option value="MSc Computer Science">
                   MSc Computer Science
                 </option>
-                <option value="Other">Other</option>
+
+                <option value="Other">
+                  Other
+                </option>
               </select>
             </div>
+
 
             <div className="form-group">
               <label>Year</label>
@@ -142,18 +212,50 @@ function Signup() {
                 onChange={handleChange}
                 required
               >
-                <option value="">Select year</option>
-                <option value="1st Year">1st Year</option>
-                <option value="2nd Year">2nd Year</option>
-                <option value="3rd Year">3rd Year</option>
-                <option value="4th Year">4th Year</option>
+                <option value="">
+                  Select year
+                </option>
+
+                <option value="1st Year">
+                  1st Year
+                </option>
+
+                <option value="2nd Year">
+                  2nd Year
+                </option>
+
+                <option value="3rd Year">
+                  3rd Year
+                </option>
+
+                <option value="4th Year">
+                  4th Year
+                </option>
               </select>
             </div>
 
           </div>
 
-          <button type="submit" className="signup-button">
-            Create Profile →
+
+          {/* ERROR */}
+
+          {error && (
+            <p className="signin-error">
+              {error}
+            </p>
+          )}
+
+
+          {/* SUBMIT */}
+
+          <button
+            type="submit"
+            className="signup-button"
+            disabled={loading}
+          >
+            {loading
+              ? "Creating Profile..."
+              : "Create Profile →"}
           </button>
 
         </form>

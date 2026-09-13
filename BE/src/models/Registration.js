@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const registrationSchema = new mongoose.Schema(
   {
-    studentId: {
+    x_Id: {
       type: String,
       required: true
     },
@@ -29,7 +29,7 @@ const registrationSchema = new mongoose.Schema(
 );
 
 registrationSchema.index(
-  { studentId: 1, eventId: 1 },
+  { x_Id: 1, eventId: 1 },
   { unique: true }
 );
 

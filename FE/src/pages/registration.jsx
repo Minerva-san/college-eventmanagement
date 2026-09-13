@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import events from "../data/event";
 
@@ -9,6 +9,8 @@ function Registration() {
 
   const [registrationType, setRegistrationType] = useState("");
   const [registered, setRegistered] = useState(false);
+  const [currentSlots, setCurrentSlots] = useState(event.slots);
+  const [loadingRegistration, setLoadingRegistration] = useState(true);
 
   // -------------------------
   // EVENT NOT FOUND
@@ -98,6 +100,38 @@ function Registration() {
   }
 
   const student = JSON.parse(studentData);
+  // -------------------------
+  // CHECK EXISTING REGISTRATION
+  // -------------------------
+  useEffect(() => {
+    const checkRegistration = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/registrations/student/${student.x_id}`
+        );
+
+        const registrations = await response.json();
+
+        if (response.ok) {
+          const alreadyRegistered = registrations.some(
+            (registration) =>
+              registration.eventId === event.id
+          );
+
+          setRegistered(alreadyRegistered);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to check registration:",
+          error
+        );
+      } finally {
+        setLoadingRegistration(false);
+      }
+    };
+
+    checkRegistration();
+  }, [student.x_id, event.id]);
 
   // -------------------------
   // HANDLE REGISTRATION
@@ -118,7 +152,7 @@ function Registration() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          studentId: student.xactitudeId,
+          x_Id: student.x_Id,
           eventId: event.id,
           registrationType: registrationType,
         }),
@@ -128,6 +162,12 @@ function Registration() {
     const data = await response.json();
 
     if (!response.ok) {
+      if (
+        data.message ===
+        "Student is already registered for this event"
+      ) {
+        setRegistered(true);
+      }
       alert(data.message || "Registration failed.");
       return;
     }
@@ -135,6 +175,9 @@ function Registration() {
     console.log("Registration successful:", data);
 
     setRegistered(true);
+    setCurrentSlots(
+      (previous) => Math.max(previous - 1, 0)
+    );
 
   } catch (error) {
     console.error("Registration error:", error);
@@ -175,10 +218,12 @@ function Registration() {
             </div>
 
             <div>
+              <span>COLLEGE ID</span>
+              <strong>{student.studentId}</strong>
+            </div>
+            <div>
               <span>XACTITUDE ID</span>
-              <strong>
-                {student.xactitudeId}
-              </strong>
+              <strong>{student.x_Id}</strong>
             </div>
 
             <div>
@@ -286,7 +331,7 @@ function Registration() {
           <div>
             <span>SLOTS</span>
             <strong>
-              {event.slotsLeft} / {event.slots}
+              {Math.max(event.slots - currentSlots, 0)} / {event.slots}
             </strong>
           </div>
 
@@ -308,9 +353,13 @@ function Registration() {
             </div>
 
             <div>
+              <span>COLLEGE ID</span>
+              <strong>{student.studentId}</strong>
+            </div>
+            <div>
               <span>XACTITUDE ID</span>
               <strong>
-                {student.xactitudeId}
+                {student.x_Id}
               </strong>
             </div>
 
@@ -377,20 +426,18 @@ function Registration() {
         >
             Continue to Team Registration →
         </Link>
+        ):(
+          <button
+            type="button"
+            className="confirm-registration-button"
+            onClick={handleRegistration}
+            disabled={!registrationType || event.slotsLeft <= 0}
+          >
+            {event.slotsLeft > 0
+              ? "Confirm Registration →"
+              : "Registration Full"}
+          </button>
         ) }
-
-        {/* CONFIRM */}
-
-        <button
-          type="button"
-          className="confirm-registration-button"
-          onClick={handleRegistration}
-          disabled={event.slotsLeft <= 0}
-        >
-          {event.slotsLeft > 0
-            ? "Confirm Registration →"
-            : "Registration Full"}
-        </button>
 
       </div>
 
