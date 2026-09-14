@@ -100,6 +100,13 @@ function Registration() {
   }
 
   const student = JSON.parse(studentData);
+  const allowsIndividual =
+  event.registrationType === "Individual" ||
+  event.registrationType === "Both";
+
+const allowsTeam =
+  event.registrationType === "Team" ||
+  event.registrationType === "Both";
   // -------------------------
   // CHECK EXISTING REGISTRATION
   // -------------------------
@@ -107,7 +114,7 @@ function Registration() {
     const checkRegistration = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/registrations/student/${student.x_id}`
+          `http://localhost:5000/api/registrations/student/${student.x_Id}`
         );
 
         const registrations = await response.json();
@@ -131,7 +138,7 @@ function Registration() {
     };
 
     checkRegistration();
-  }, [student.x_id, event.id]);
+  }, [student.x_Id, event.id]);
 
   // -------------------------
   // HANDLE REGISTRATION
@@ -377,39 +384,48 @@ function Registration() {
 
           <div className="registration-options">
 
+            {/* INDIVIDUAL */}
             <button
               type="button"
-              className={
-                registrationType === "Individual"
-                  ? "registration-option active"
-                  : "registration-option"
-              }
-              onClick={() =>
-                setRegistrationType("Individual")
-              }
+              disabled={!allowsIndividual}
+              className={`registration-option ${
+                registrationType === "Individual" ? "active" : ""
+              } ${!allowsIndividual ? "disabled" : ""}`}
+              onClick={() => {
+                if (allowsIndividual) {
+                  setRegistrationType("Individual");
+                }
+              }}
             >
               <strong>Individual</strong>
 
               <span>
-                Register yourself for this event.
+                {allowsIndividual
+                  ? "Register yourself for this event."
+                  : "Not available for this event."}
               </span>
             </button>
 
+
+            {/* TEAM */}
             <button
               type="button"
-              className={
-                registrationType === "Team"
-                  ? "registration-option active"
-                  : "registration-option"
-              }
-              onClick={() =>
-                setRegistrationType("Team")
-              }
+              disabled={!allowsTeam}
+              className={`registration-option ${
+                registrationType === "Team" ? "active" : ""
+              } ${!allowsTeam ? "disabled" : ""}`}
+              onClick={() => {
+                if (allowsTeam) {
+                  setRegistrationType("Team");
+                }
+              }}
             >
               <strong>Team</strong>
 
               <span>
-                Register as a team leader.
+                {allowsTeam
+                  ? "Register as a team leader."
+                  : "Not available for this event."}
               </span>
             </button>
 

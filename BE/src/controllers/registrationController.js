@@ -78,14 +78,41 @@ export const registerForEvent = async (req, res) => {
 };
 export const getStudentRegistrations = async (req, res) => {
   try {
-    const registrations = await Registration.find({
-      x_id: req.params.x_id,
-    });
+    const { x_id } = req.params;
 
-    res.status(200).json(registrations);
+    const registrations = await Registration.find({ x_id });
+
+    const registrationsWithEvents = await Promise.all(
+      registrations.map(async (registration) => {
+        const event = await Event.findOne({
+          eventId: registration.eventId,
+        });
+
+        return {
+          eventId: registration.eventId,
+          registrationType: registration.registrationType,
+          registrationDate: registration.registrationDate,
+
+          event: event
+            ? {
+                eventId: event.eventId,
+                name: event.name,
+                category: event.category,
+                date: event.date,
+                time: event.time,
+                venue: event.venue,
+              }
+            : null,
+        };
+      })
+    );
+
+    res.status(200).json(registrationsWithEvents);
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
-      message: "Failed to fetch registrations",
+      message: "Failed to fetch registered events",
       error: error.message,
     });
   }

@@ -16,30 +16,26 @@ function Header() {
     window.addEventListener("authChange", updateAuth);
 
     return () => {
-      window.removeEventListener(
-        "authChange",
-        updateAuth
-      );
+      window.removeEventListener("authChange", updateAuth);
     };
   }, []);
 
   return (
     <header className="header">
-
       <Link to="/" className="logo">
         XACTITUDE
       </Link>
 
       <nav className="nav">
 
+        {/* SIGN UP - only when not signed in */}
         {!isLoggedIn && (
           <Link to="/signup" className="nav-item">
             Sign Up
           </Link>
         )}
 
-        {/* HOME */}
-
+        {/* HOME - always visible */}
         <Link
           to="/"
           className="nav-item home-icon"
@@ -61,29 +57,26 @@ function Header() {
           </svg>
         </Link>
 
-        {/* PROFILE */}
-
-        {isLoggedIn && (
-          <Link
-            to="/profile"
-            className="nav-item profile-icon"
-            aria-label="Profile"
+        {/* PROFILE - always visible */}
+        <Link
+          to={isLoggedIn ? "/profile" : "/signin"}
+          className="nav-item profile-icon"
+          aria-label={isLoggedIn ? "Profile" : "Sign In"}
+        >
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 21c0-4 3.5-7 8-7s8 3 8 7" />
-            </svg>
-          </Link>
-        )}
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21c0-4 3.5-7 8-7s8 3 8 7" />
+          </svg>
+        </Link>
 
       </nav>
     </header>

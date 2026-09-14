@@ -11,6 +11,7 @@ function Signup() {
     studentId: "",
     course: "",
     year: "",
+    // college:"",
   });
 
   const [error, setError] = useState("");
